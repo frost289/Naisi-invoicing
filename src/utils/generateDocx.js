@@ -20,13 +20,41 @@ function formatMoney(value) {
   })
 }
 
+function formatDateTime(value) {
+  if (!value) return ''
+  let d = null
+  // Support Firestore Timestamp, ISO strings, or Date
+  if (value && typeof value.toDate === 'function') {
+    d = value.toDate()
+  } else if (typeof value === 'string' || typeof value === 'number') {
+    d = new Date(value)
+  } else if (value instanceof Date) {
+    d = value
+  }
+  if (!d || Number.isNaN(d.getTime())) return ''
+  return d.toLocaleString('en-GB', { hour12: false })
+}
+
+function buildInfoCell(text, isLabel = false) {
+  return new TableCell({
+    children: [
+      new Paragraph({
+        children: [
+          new TextRun({ text: text || '', bold: !!isLabel, size: isLabel ? 20 : 22 }),
+        ],
+      }),
+    ],
+  })
+}
+
 function buildInfoRow(labelLeft, valueLeft, labelRight, valueRight) {
   return new TableRow({
-    children: [labelLeft, valueLeft, labelRight, valueRight].map((value) => {
-      return new TableCell({
-        children: [new Paragraph({ children: [new TextRun({ text: value || '' })] })],
-      })
-    }),
+    children: [
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: labelLeft || '', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph(String(valueLeft || ''))] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: labelRight || '', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph(String(valueRight || ''))] }),
+    ],
   })
 }
 
@@ -38,33 +66,44 @@ export async function generateInvoiceDocx(invoice) {
     right: { style: BorderStyle.SINGLE, size: 1, color: 'd4d4d4' },
   }
 
-  const lines = invoice.items.map((item) => {
-    const lineTotal = Number(item.qty) * Number(item.unitPrice)
+  const lines = (invoice.items || []).map((item) => {
+    const lineTotal = Number(item.qty || 0) * Number(item.unitPrice || 0)
     return new TableRow({
       children: [
         new TableCell({
+          columnSpan: 1,
           borders: rowBorder,
-          children: [new Paragraph(String(item.qty))],
-        }),
-        new TableCell({
-          borders: rowBorder,
-          children: [new Paragraph(item.description)],
-        }),
-        new TableCell({
-          borders: rowBorder,
+          width: { size: 10, type: WidthType.PERCENTAGE },
           children: [
             new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              children: [new TextRun(formatMoney(item.unitPrice))],
+              children: [new TextRun({ text: String(item.qty || ''), size: 22 })],
             }),
           ],
         }),
         new TableCell({
           borders: rowBorder,
+          width: { size: 55, type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({ children: [new TextRun({ text: item.description || '', size: 22 })] }),
+          ],
+        }),
+        new TableCell({
+          borders: rowBorder,
+          width: { size: 17, type: WidthType.PERCENTAGE },
           children: [
             new Paragraph({
               alignment: AlignmentType.RIGHT,
-              children: [new TextRun(formatMoney(lineTotal))],
+              children: [new TextRun({ text: formatMoney(item.unitPrice), size: 22 })],
+            }),
+          ],
+        }),
+        new TableCell({
+          borders: rowBorder,
+          width: { size: 18, type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.RIGHT,
+              children: [new TextRun({ text: formatMoney(lineTotal), size: 22 })],
             }),
           ],
         }),
@@ -72,79 +111,134 @@ export async function generateInvoiceDocx(invoice) {
     })
   })
 
-  const total = Number(invoice.total || calculateTotal(invoice.items))
+  const total = Number(invoice.total || calculateTotal(invoice.items || []))
+
+  // Determine a sensible timestamp: prefer invoice.createdAt if available, otherwise use current time
+  const generatedAt = new Date()
+  const invoiceCreated = invoice.createdAt && typeof invoice.createdAt.toDate === 'function'
+    ? invoice.createdAt.toDate()
+    : invoice.createdAt
+  const createdAtStr = formatDateTime(invoiceCreated) || ''
+  const generatedAtStr = formatDateTime(generatedAt)
+
   const doc = new Document({
     sections: [
       {
+        properties: {},
         children: [
+          // Header
           new Paragraph({
-            children: [new TextRun({ text: 'NAISI FOODS', bold: true, size: 36 })],
-            spacing: { after: 120 },
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: 'NAISI FOODS', bold: true, size: 40 }),
+            ],
+            spacing: { after: 100 },
           }),
           new Paragraph({
-            children: [new TextRun({ text: 'SALES INVOICE', bold: true, size: 28 })],
-            spacing: { after: 280 },
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: 'SALES INVOICE', bold: true, size: 28 }),
+            ],
+            spacing: { after: 300 },
           }),
+
+          // Info table (4 columns)
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              buildInfoRow('Invoice No.', invoice.invoiceNo, 'Date', invoice.date),
-              buildInfoRow('Customer', invoice.customerName, 'Phone', invoice.phone),
-              buildInfoRow('Location', invoice.location, 'Terms', invoice.terms),
+              buildInfoRow('Invoice No.', invoice.invoiceNo || '', 'Date', invoice.date || ''),
+              buildInfoRow('Customer', invoice.customerName || '', 'Phone', invoice.phone || ''),
+              buildInfoRow('Location', invoice.location || '', 'Terms', invoice.terms || ''),
+              buildInfoRow('Created At', createdAtStr, 'Generated', generatedAtStr),
             ],
           }),
+
           new Paragraph({ text: '', spacing: { after: 200 } }),
+
+          // Items table with header
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              new TableRow({
-                children: ['Qty', 'Description', 'Unit Price', 'Total'].map((text) => {
-                  return new TableCell({
-                    borders: rowBorder,
-                    children: [
-                      new Paragraph({
-                        children: [new TextRun({ text, bold: true })],
-                      }),
-                    ],
-                  })
-                }),
-              }),
-              ...lines,
               new TableRow({
                 children: [
                   new TableCell({
                     borders: rowBorder,
-                    children: [new Paragraph('')],
+                    width: { size: 10, type: WidthType.PERCENTAGE },
+                    children: [
+                      new Paragraph({ children: [new TextRun({ text: 'Qty', bold: true })] }),
+                    ],
                   }),
                   new TableCell({
                     borders: rowBorder,
-                    children: [new Paragraph('')],
+                    width: { size: 55, type: WidthType.PERCENTAGE },
+                    children: [
+                      new Paragraph({ children: [new TextRun({ text: 'Description', bold: true })] }),
+                    ],
                   }),
+                  new TableCell({
+                    borders: rowBorder,
+                    width: { size: 17, type: WidthType.PERCENTAGE },
+                    children: [
+                      new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Unit Price', bold: true })] }),
+                    ],
+                  }),
+                  new TableCell({
+                    borders: rowBorder,
+                    width: { size: 18, type: WidthType.PERCENTAGE },
+                    children: [
+                      new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Total', bold: true })] }),
+                    ],
+                  }),
+                ],
+              }),
+              // Item lines
+              ...lines,
+
+              // Grand total row
+              new TableRow({
+                children: [
+                  new TableCell({ borders: rowBorder, children: [new Paragraph('')] }),
+                  new TableCell({ borders: rowBorder, children: [new Paragraph('')] }),
                   new TableCell({
                     borders: rowBorder,
                     children: [
-                      new Paragraph({
-                        alignment: AlignmentType.RIGHT,
-                        children: [new TextRun({ text: 'Grand Total', bold: true })],
-                      }),
+                      new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Grand Total', bold: true })] }),
                     ],
                   }),
                   new TableCell({
                     borders: rowBorder,
                     children: [
-                      new Paragraph({
-                        alignment: AlignmentType.RIGHT,
-                        children: [new TextRun({ text: formatMoney(total), bold: true })],
-                      }),
+                      new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: formatMoney(total), bold: true })] }),
                     ],
                   }),
                 ],
               }),
             ],
           }),
-          new Paragraph({ text: '', spacing: { after: 400 } }),
+
+          new Paragraph({ text: '', spacing: { after: 200 } }),
+
+          // Generated timestamp and small footer note
           new Paragraph({
-            children: [new TextRun({ text: 'Customer Signature: ___________' })],
+            alignment: AlignmentType.RIGHT,
+            children: [
+              new TextRun({ text: `Document generated: ${generatedAtStr}`, italics: true, size: 18 }),
+            ],
+          }),
+
+          new Paragraph({ text: '', spacing: { after: 200 } }),
+
+          new Paragraph({
+            children: [new TextRun({ text: 'Customer Signature: ______________________________________', size: 22 })],
+          }),
+
+          new Paragraph({ text: '', spacing: { after: 100 } }),
+
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'Thank you for your business!', italics: true, size: 20 }),
+            ],
+            alignment: AlignmentType.CENTER,
           }),
         ],
       },
@@ -153,5 +247,5 @@ export async function generateInvoiceDocx(invoice) {
 
   const blob = await Packer.toBlob(doc)
   const safeCustomerName = String(invoice.customerName || 'Customer').replace(/\s+/g, '_')
-  saveAs(blob, `${invoice.invoiceNo}_${safeCustomerName}.docx`)
+  saveAs(blob, `${invoice.invoiceNo || 'invoice'}_${safeCustomerName}.docx`)
 }
