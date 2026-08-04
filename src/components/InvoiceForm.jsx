@@ -139,7 +139,7 @@ function InvoiceForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 rounded-2xl border border-charcoal/10 bg-white p-4 shadow-card md:p-6"
+      className="space-y-5 rounded-2xl border border-line/70 bg-surface p-4 shadow-card transition-colors duration-200 md:p-6"
     >
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
@@ -153,7 +153,7 @@ function InvoiceForm({
             whileTap={{ scale: 0.98 }}
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-charcoal/20 px-4 py-2 text-sm font-semibold"
+            className="rounded-lg border border-line/80 px-4 py-2 text-sm font-semibold"
           >
             Cancel
           </motion.button>
@@ -179,10 +179,10 @@ function InvoiceForm({
           <input
             value={formData.customerName}
             onChange={(event) => setField('customerName', event.target.value)}
-            className="w-full rounded-xl border border-charcoal/15 px-3 py-2.5 text-sm outline-none focus:border-amber"
+            className="w-full rounded-xl border border-line/80 bg-cream px-3 py-2.5 text-sm outline-none focus:border-amber"
           />
           {errors.customerName ? (
-            <p className="mt-1 text-xs text-rose-600">{errors.customerName}</p>
+            <p className="mt-1 text-xs text-danger">{errors.customerName}</p>
           ) : null}
         </div>
 
@@ -191,10 +191,10 @@ function InvoiceForm({
           <input
             value={formData.phone}
             onChange={(event) => setField('phone', event.target.value)}
-            className="w-full rounded-xl border border-charcoal/15 px-3 py-2.5 text-sm outline-none focus:border-amber"
+            className="w-full rounded-xl border border-line/80 bg-cream px-3 py-2.5 text-sm outline-none focus:border-amber"
           />
           {errors.phone ? (
-            <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>
+            <p className="mt-1 text-xs text-danger">{errors.phone}</p>
           ) : null}
         </div>
 
@@ -203,10 +203,10 @@ function InvoiceForm({
           <input
             value={formData.location}
             onChange={(event) => setField('location', event.target.value)}
-            className="w-full rounded-xl border border-charcoal/15 px-3 py-2.5 text-sm outline-none focus:border-amber"
+            className="w-full rounded-xl border border-line/80 bg-cream px-3 py-2.5 text-sm outline-none focus:border-amber"
           />
           {errors.location ? (
-            <p className="mt-1 text-xs text-rose-600">{errors.location}</p>
+            <p className="mt-1 text-xs text-danger">{errors.location}</p>
           ) : null}
         </div>
 
@@ -216,9 +216,9 @@ function InvoiceForm({
             type="date"
             value={formData.date}
             onChange={(event) => setField('date', event.target.value)}
-            className="w-full rounded-xl border border-charcoal/15 px-3 py-2.5 text-sm outline-none focus:border-amber"
+            className="w-full rounded-xl border border-line/80 bg-cream px-3 py-2.5 text-sm outline-none focus:border-amber"
           />
-          {errors.date ? <p className="mt-1 text-xs text-rose-600">{errors.date}</p> : null}
+          {errors.date ? <p className="mt-1 text-xs text-danger">{errors.date}</p> : null}
         </div>
       </div>
 
@@ -227,14 +227,14 @@ function InvoiceForm({
         <input
           value={formData.terms}
           onChange={(event) => setField('terms', event.target.value)}
-          className="w-full rounded-xl border border-charcoal/15 px-3 py-2.5 text-sm outline-none focus:border-amber"
+          className="w-full rounded-xl border border-line/80 bg-cream px-3 py-2.5 text-sm outline-none focus:border-amber"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-charcoal/10">
+      <div className="overflow-x-auto rounded-xl border border-line/70">
         <table className="min-w-full border-collapse">
           <thead>
-            <tr className="bg-charcoal/5 text-left text-xs uppercase tracking-wider">
+            <tr className="bg-line/20 text-left text-xs uppercase tracking-wider">
               <th className="p-3">Description</th>
               <th className="p-3">Qty</th>
               <th className="p-3">Unit Price</th>
@@ -246,17 +246,17 @@ function InvoiceForm({
             {formData.items.map((item, index) => {
               const lineTotal = (Number(item.qty) || 0) * (Number(item.unitPrice) || 0)
               return (
-                <tr key={index} className="border-t border-charcoal/10">
+                <tr key={index} className="border-t border-line/70">
                   <td className="p-2 align-top">
                     <input
                       value={item.description}
                       onChange={(event) =>
                         setItemField(index, 'description', event.target.value)
                       }
-                      className="w-full rounded-lg border border-charcoal/15 px-3 py-2 text-sm outline-none focus:border-amber"
+                      className="w-full rounded-lg border border-line/80 bg-cream px-3 py-2 text-sm outline-none focus:border-amber"
                     />
                     {errors[`item-description-${index}`] ? (
-                      <p className="mt-1 text-xs text-rose-600">
+                      <p className="mt-1 text-xs text-danger">
                         {errors[`item-description-${index}`]}
                       </p>
                     ) : null}
@@ -267,10 +267,10 @@ function InvoiceForm({
                       min="1"
                       value={item.qty}
                       onChange={(event) => setItemField(index, 'qty', event.target.value)}
-                      className="w-24 rounded-lg border border-charcoal/15 px-3 py-2 text-sm outline-none focus:border-amber"
+                      className="w-24 rounded-lg border border-line/80 bg-cream px-3 py-2 text-sm outline-none focus:border-amber"
                     />
                     {errors[`item-qty-${index}`] ? (
-                      <p className="mt-1 text-xs text-rose-600">{errors[`item-qty-${index}`]}</p>
+                      <p className="mt-1 text-xs text-danger">{errors[`item-qty-${index}`]}</p>
                     ) : null}
                   </td>
                   <td className="p-2 align-top">
@@ -282,10 +282,10 @@ function InvoiceForm({
                       onChange={(event) =>
                         setItemField(index, 'unitPrice', event.target.value)
                       }
-                      className="w-32 rounded-lg border border-charcoal/15 px-3 py-2 text-sm outline-none focus:border-amber"
+                      className="w-32 rounded-lg border border-line/80 bg-cream px-3 py-2 text-sm outline-none focus:border-amber"
                     />
                     {errors[`item-price-${index}`] ? (
-                      <p className="mt-1 text-xs text-rose-600">
+                      <p className="mt-1 text-xs text-danger">
                         {errors[`item-price-${index}`]}
                       </p>
                     ) : null}
@@ -300,7 +300,7 @@ function InvoiceForm({
                     <button
                       type="button"
                       onClick={() => removeItemRow(index)}
-                      className="rounded-md border border-rose-200 px-2 py-1 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                      className="rounded-md border border-danger/30 px-2 py-1 text-xs font-semibold text-danger transition hover:bg-dangerSoft"
                     >
                       Remove
                     </button>
@@ -317,7 +317,7 @@ function InvoiceForm({
           whileTap={{ scale: 0.98 }}
           type="button"
           onClick={addItemRow}
-          className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm font-semibold"
+          className="rounded-lg border border-line/80 px-3 py-2 text-sm font-semibold"
         >
           + Add Item Row
         </motion.button>

@@ -152,9 +152,6 @@ export async function generateInvoiceDocx(invoice) {
   })
 
   const blob = await Packer.toBlob(doc)
-  const safeCustomerName = String(invoice.customerName || 'Customer').replace(
-    /\s+/g,
-    '_',
-  )
+  const safeCustomerName = String(invoice.customerName || 'Customer').replace(/\s+/g, '_')
   saveAs(blob, `${invoice.invoiceNo}_${safeCustomerName}.docx`)
 }

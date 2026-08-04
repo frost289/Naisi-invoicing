@@ -16,7 +16,7 @@ function InvoiceCard({ invoice, onEdit, onDelete, onDownload }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.2 }}
-      className="rounded-2xl border border-charcoal/10 bg-white p-4 shadow-card md:p-5"
+      className="rounded-2xl border border-line/70 bg-surface p-4 shadow-card transition-colors duration-200 md:p-5"
     >
       <div className="mb-4 flex items-start justify-between gap-2">
         <div>
@@ -33,7 +33,7 @@ function InvoiceCard({ invoice, onEdit, onDelete, onDownload }) {
         <p className="text-sm text-charcoal/70">{invoice.location}</p>
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-charcoal/10 pt-3">
+      <div className="mt-4 flex items-center justify-between border-t border-line/70 pt-3">
         <p className="text-sm font-semibold md:text-base">
           Total: <span className="text-amber">{formatMoney(invoice.total)}</span>
         </p>
@@ -43,7 +43,7 @@ function InvoiceCard({ invoice, onEdit, onDelete, onDownload }) {
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={() => onEdit(invoice)}
-            className="rounded-lg border border-charcoal/15 px-3 py-2 text-xs font-semibold text-charcoal transition hover:border-charcoal md:text-sm"
+            className="rounded-lg border border-line/80 px-3 py-2 text-xs font-semibold text-charcoal transition hover:border-charcoal md:text-sm"
           >
             Edit
           </motion.button>
@@ -51,7 +51,7 @@ function InvoiceCard({ invoice, onEdit, onDelete, onDownload }) {
             whileTap={{ scale: 0.96 }}
             type="button"
             onClick={() => onDelete(invoice)}
-            className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50 md:text-sm"
+            className="rounded-lg border border-danger/30 px-3 py-2 text-xs font-semibold text-danger transition hover:bg-dangerSoft md:text-sm"
           >
             Delete
           </motion.button>

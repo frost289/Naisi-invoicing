@@ -8,7 +8,7 @@ function LoadingSkeleton() {
         return (
           <div
             key={index}
-            className="h-40 animate-pulse rounded-2xl border border-charcoal/10 bg-white shadow-card"
+            className="h-40 animate-pulse rounded-2xl border border-line/70 bg-surface shadow-card"
           />
         )
       })}
@@ -18,7 +18,7 @@ function LoadingSkeleton() {
 
 function EmptyState({ hasSearch }) {
   return (
-    <div className="rounded-2xl border border-dashed border-charcoal/20 bg-white/60 p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-line/80 bg-surface/70 p-10 text-center">
       <p className="text-4xl" role="img" aria-hidden="true">
         🧾
       </p>
@@ -45,7 +45,7 @@ function InvoiceList({
 }) {
   return (
     <section className="space-y-4">
-      <div className="rounded-2xl border border-charcoal/10 bg-white p-4 shadow-card md:p-5">
+      <div className="rounded-2xl border border-line/70 bg-surface p-4 shadow-card md:p-5">
         <label className="mb-2 block text-sm font-semibold" htmlFor="search">
           Search invoices
         </label>
@@ -55,7 +55,7 @@ function InvoiceList({
           value={searchTerm}
           onChange={(event) => onSearch(event.target.value)}
           placeholder="Search by customer name or invoice number..."
-          className="w-full rounded-xl border border-charcoal/15 px-4 py-3 text-sm outline-none transition focus:border-amber focus:ring-2 focus:ring-amber/20"
+          className="w-full rounded-xl border border-line/80 bg-cream px-4 py-3 text-sm outline-none transition focus:border-amber focus:ring-2 focus:ring-amber/20"
         />
       </div>
 
