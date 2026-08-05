@@ -86,9 +86,9 @@ function InvoiceForm({
     if (!formData.customerName.trim()) {
       nextErrors.customerName = 'Customer name is required.'
     }
-    if (!formData.phone.trim()) {
-      nextErrors.phone = 'Phone is required.'
-    }
+    // if (!formData.phone.trim()) {
+    //   nextErrors.phone = 'Phone is required.'
+    // }
     if (!formData.location.trim()) {
       nextErrors.location = 'Location is required.'
     }
